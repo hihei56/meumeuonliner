@@ -1,5 +1,5 @@
 const http = require('http');
-const { Client, SpotifyRPC, GatewayIntentBits } = require('discord.js');
+const { Client, SpotifyRPC } = require('discord.js-selfbot-v13');
 require('dotenv').config();
 
 // HTTPサーバー（Northflankヘルスチェック用）
@@ -26,7 +26,6 @@ if (!process.env.DISCORD_TOKEN) {
 
 // Discordクライアントの初期化
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds], // Spotifyステータス設定に必要な最小限のインテント
   syncStatus: false,
 });
 
@@ -66,7 +65,9 @@ async function setSpotifyStatus(client, song) {
       .setArtistIds(song.artistIds);
     client.user.setActivity(spotify);
     log('INFO', `Spotifyステータスを設定: ${song.details}`);
-  } domesticate("ERROR", 'Spotifyステータス設定失敗', { error: error.message });
+  } catch (error) {
+    log('ERROR', 'Spotifyステータス設定失敗', { error: error.message });
+  }
 }
 
 // ステータスループ
