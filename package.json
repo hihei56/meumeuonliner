@@ -1,0 +1,16 @@
+{
+  "name": "discord-spotify-status",
+  "version": "1.0.0",
+  "description": "Discord bot to alternate Spotify status",
+  "main": "tikuwa.js",
+  "scripts": {
+    "start": "node tikuwa.js"
+  },
+  "dependencies": {
+    "discord.js-selfbot-v13": "^3.0.0",
+    "dotenv": "^16.0.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
