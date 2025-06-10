@@ -101,7 +101,7 @@ client.login(process.env.DISCORD_TOKEN).catch((error) => {
   process.exit(1);
 });
 
-// プロセス維持
+// プロセス維
 setInterval(() => {
   log('INFO', 'プロセス稼働中');
 }, 60000);
