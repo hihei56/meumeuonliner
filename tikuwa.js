@@ -1,24 +1,16 @@
 /**
  * =========================================================
- * Meumeu Ultra Presence System (Error-Proof Version)
- * 依存関係エラーを自動回避するサイキョーコード
+ * Meumeu Final Presence System (Ultra Stable)
+ * 依存関係エラーを物理的に粉砕した最終版
  * =========================================================
  */
 
 const http = require('http');
 require('dotenv').config();
 
-// --- 💡 依存関係の二段構えチェック ---
-let Client, SpotifyRPC;
-try {
-  const sbot = require('discord.js-selfbot-v13');
-  Client = sbot.Client;
-  // v13本体に含まれている場合と、別パッケージの場合の両方に対応
-  SpotifyRPC = sbot.SpotifyRPC || require('discord.js-selfbot-rpc').SpotifyRPC;
-} catch (e) {
-  console.error("ライブラリの読み込みに失敗しました。package.jsonを確認してください。");
-  process.exit(1);
-}
+// 💡 確実に読み込むためのインポート文
+const { Client } = require('discord.js-selfbot-v13');
+const { SpotifyRPC } = require('discord.js-selfbot-rpc'); 
 
 const client = new Client({
   ws: { properties: { $browser: 'Discord iOS' } },
@@ -47,7 +39,7 @@ async function updatePresence() {
     const song = songs[currentIndex];
     const ep = UNEXT_EPISODES[Math.floor(Math.random() * UNEXT_EPISODES.length)];
 
-    // Spotify Activity
+    // Spotify Activity 構築
     const spotify = new SpotifyRPC(client)
       .setAssetsLargeImage(`spotify:${song.largeImageId}`)
       .setAssetsSmallImage('spotify:ab6761610000f178049d8aeae802c96c8208f3b7')
@@ -56,10 +48,10 @@ async function updatePresence() {
       .setSongId(song.songId)
       .setAlbumId(song.albumId);
 
-    const spotifyData = typeof spotify.toData === 'function' ? spotify.toData() : spotify;
+    const spotifyData = spotify.toData();
     spotifyData.flags = 1;
 
-    // U-NEXT Activity (シークバー表示あり)
+    // U-NEXT Activity (テキトーなバーを出す)
     const now = Date.now();
     const totalAnimeTime = 24 * 60 * 1000;
     const randomElapsed = Math.floor(Math.random() * 18 * 60 * 1000);
@@ -86,7 +78,7 @@ async function updatePresence() {
       status: 'online'
     });
 
-    console.log(`[INFO] 更新成功: ${song.details}`);
+    console.log(`[INFO] 表示更新成功: ${song.details}`);
 
     if (rotateTimer) clearTimeout(rotateTimer);
     rotateTimer = setTimeout(() => {
@@ -101,7 +93,10 @@ async function updatePresence() {
 }
 
 const PORT = process.env.PORT || 8080;
-http.createServer((req, res) => { res.writeHead(200); res.end('Meumeu Active'); }).listen(PORT, '0.0.0.0');
+http.createServer((req, res) => {
+  res.writeHead(200);
+  res.end('System: Online');
+}).listen(PORT, '0.0.0.0');
 
 client.once('ready', () => {
   console.log(`[READY] Logged in as ${client.user.tag}`);
