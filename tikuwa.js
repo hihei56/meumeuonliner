@@ -1,17 +1,8 @@
-process.env.DISCORDJS_WVOICE = 'false'; 
+process.env.DISCORDJS_WVOICE = 'false'; // これを一番上に追加
 
 const http = require('http');
-require('dotenv').config();
-
-// 💡 読み込みエラーを無視して強引に Client だけ取り出す
 const { Client } = require('discord.js-selfbot-v13');
-// RPCが無理なら手書きに切り替えるための保険
-let SpotifyRPC;
-try {
-  SpotifyRPC = require('discord.js-selfbot-rpc').SpotifyRPC;
-} catch (e) {
-  SpotifyRPC = null;
-}
+require('dotenv').config();
 
 const client = new Client({
   ws: { properties: { $browser: 'Discord iOS' } },
@@ -19,7 +10,7 @@ const client = new Client({
   checkUpdate: false
 });
 
-// --- DATA ---
+// DATA
 const UNEXT_EPISODES = [
   { id: '1457346793753804925', details: 'ひきこまり吸血鬼の悶々 第1話', state: '「引きこもり吸血鬼、外に出る」──烈核解放' },
   { id: '1457346793041035337', details: 'ひきこまり吸血鬼の悶々 第4話', state: '「孤高の吸血姫」──烈核解放' },
@@ -39,33 +30,21 @@ async function updatePresence() {
     const song = songs[currentIndex];
     const ep = UNEXT_EPISODES[Math.floor(Math.random() * UNEXT_EPISODES.length)];
 
-    let spotifyData;
-    if (SpotifyRPC) {
-      const spotify = new SpotifyRPC(client)
-        .setAssetsLargeImage(`spotify:${song.largeImageId}`)
-        .setAssetsSmallImage('spotify:ab6761610000f178049d8aeae802c96c8208f3b7')
-        .setDetails(song.details)
-        .setState(song.state)
-        .setSongId(song.songId)
-        .setAlbumId(song.albumId);
-      spotifyData = spotify.toData();
-    } else {
-      // 💡 もしライブラリがなくても手書きで Spotify を再現（最強の予備策）
-      spotifyData = {
-        name: 'Spotify',
-        type: 2,
-        flags: 1,
-        details: song.details,
-        state: song.state,
-        sync_id: song.songId,
-        metadata: { album_id: song.albumId },
-        assets: {
-          large_image: `spotify:${song.largeImageId}`,
-          small_image: 'spotify:ab6761610000f178049d8aeae802c96c8208f3b7'
-        },
-        party: { id: `spotify:${client.user.id}` }
-      };
-    }
+    // Spotifyを手書き設定（一番安定）
+    const spotifyData = {
+      name: 'Spotify',
+      type: 2,
+      flags: 1,
+      details: song.details,
+      state: song.state,
+      sync_id: song.songId,
+      metadata: { album_id: song.albumId },
+      assets: {
+        large_image: `spotify:${song.largeImageId}`,
+        small_image: 'spotify:ab6761610000f178049d8aeae802c96c8208f3b7'
+      },
+      party: { id: `spotify:${client.user.id}` }
+    };
 
     const now = Date.now();
     const unextData = {
@@ -80,8 +59,8 @@ async function updatePresence() {
         large_text: '烈核解放中'
       },
       timestamps: {
-        start: now - (5 * 60 * 1000),
-        end: now + (19 * 60 * 1000)
+        start: now - (10 * 60 * 1000),
+        end: now + (14 * 60 * 1000)
       }
     };
 
@@ -90,7 +69,7 @@ async function updatePresence() {
       status: 'online'
     });
 
-    console.log(`[INFO] 更新: ${song.details}`);
+    console.log(`[INFO] 更新成功: ${song.details}`);
     currentIndex = (currentIndex + 1) % songs.length;
   } catch (err) {
     console.error('[ERROR]', err);
@@ -99,7 +78,8 @@ async function updatePresence() {
 
 setInterval(updatePresence, 30000);
 
-http.createServer((req, res) => res.end('OK')).listen(process.env.PORT || 8080);
+const PORT = process.env.PORT || 8080;
+http.createServer((req, res) => { res.end('Meumeu Active'); }).listen(PORT);
 
 client.once('ready', () => {
   console.log(`[READY] Logged in as ${client.user.tag}`);
