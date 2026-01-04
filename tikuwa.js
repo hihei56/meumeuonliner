@@ -1,16 +1,17 @@
-/**
- * =========================================================
- * Meumeu Final Presence System (Ultra Stable)
- * 依存関係エラーを物理的に粉砕した最終版
- * =========================================================
- */
+process.env.DISCORDJS_WVOICE = 'false'; 
 
 const http = require('http');
 require('dotenv').config();
 
-// 💡 確実に読み込むためのインポート文
+// 💡 読み込みエラーを無視して強引に Client だけ取り出す
 const { Client } = require('discord.js-selfbot-v13');
-const { SpotifyRPC } = require('discord.js-selfbot-rpc'); 
+// RPCが無理なら手書きに切り替えるための保険
+let SpotifyRPC;
+try {
+  SpotifyRPC = require('discord.js-selfbot-rpc').SpotifyRPC;
+} catch (e) {
+  SpotifyRPC = null;
+}
 
 const client = new Client({
   ws: { properties: { $browser: 'Discord iOS' } },
@@ -32,30 +33,41 @@ const songs = [
 ];
 
 let currentIndex = 0;
-let rotateTimer = null;
 
 async function updatePresence() {
   try {
     const song = songs[currentIndex];
     const ep = UNEXT_EPISODES[Math.floor(Math.random() * UNEXT_EPISODES.length)];
 
-    // Spotify Activity 構築
-    const spotify = new SpotifyRPC(client)
-      .setAssetsLargeImage(`spotify:${song.largeImageId}`)
-      .setAssetsSmallImage('spotify:ab6761610000f178049d8aeae802c96c8208f3b7')
-      .setDetails(song.details)
-      .setState(song.state)
-      .setSongId(song.songId)
-      .setAlbumId(song.albumId);
+    let spotifyData;
+    if (SpotifyRPC) {
+      const spotify = new SpotifyRPC(client)
+        .setAssetsLargeImage(`spotify:${song.largeImageId}`)
+        .setAssetsSmallImage('spotify:ab6761610000f178049d8aeae802c96c8208f3b7')
+        .setDetails(song.details)
+        .setState(song.state)
+        .setSongId(song.songId)
+        .setAlbumId(song.albumId);
+      spotifyData = spotify.toData();
+    } else {
+      // 💡 もしライブラリがなくても手書きで Spotify を再現（最強の予備策）
+      spotifyData = {
+        name: 'Spotify',
+        type: 2,
+        flags: 1,
+        details: song.details,
+        state: song.state,
+        sync_id: song.songId,
+        metadata: { album_id: song.albumId },
+        assets: {
+          large_image: `spotify:${song.largeImageId}`,
+          small_image: 'spotify:ab6761610000f178049d8aeae802c96c8208f3b7'
+        },
+        party: { id: `spotify:${client.user.id}` }
+      };
+    }
 
-    const spotifyData = spotify.toData();
-    spotifyData.flags = 1;
-
-    // U-NEXT Activity (テキトーなバーを出す)
     const now = Date.now();
-    const totalAnimeTime = 24 * 60 * 1000;
-    const randomElapsed = Math.floor(Math.random() * 18 * 60 * 1000);
-
     const unextData = {
       name: 'U-NEXT',
       type: 3,
@@ -68,8 +80,8 @@ async function updatePresence() {
         large_text: '烈核解放中'
       },
       timestamps: {
-        start: now - randomElapsed,
-        end: now - randomElapsed + totalAnimeTime
+        start: now - (5 * 60 * 1000),
+        end: now + (19 * 60 * 1000)
       }
     };
 
@@ -78,29 +90,20 @@ async function updatePresence() {
       status: 'online'
     });
 
-    console.log(`[INFO] 表示更新成功: ${song.details}`);
-
-    if (rotateTimer) clearTimeout(rotateTimer);
-    rotateTimer = setTimeout(() => {
-      currentIndex = (currentIndex + 1) % songs.length;
-      updatePresence();
-    }, 30000);
-
+    console.log(`[INFO] 更新: ${song.details}`);
+    currentIndex = (currentIndex + 1) % songs.length;
   } catch (err) {
     console.error('[ERROR]', err);
-    setTimeout(updatePresence, 5000);
   }
 }
 
-const PORT = process.env.PORT || 8080;
-http.createServer((req, res) => {
-  res.writeHead(200);
-  res.end('System: Online');
-}).listen(PORT, '0.0.0.0');
+setInterval(updatePresence, 30000);
+
+http.createServer((req, res) => res.end('OK')).listen(process.env.PORT || 8080);
 
 client.once('ready', () => {
   console.log(`[READY] Logged in as ${client.user.tag}`);
   updatePresence();
 });
 
-client.login(process.env.DISCORD_TOKEN).catch(console.error);
+client.login(process.env.DISCORD_TOKEN);
