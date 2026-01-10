@@ -4,8 +4,8 @@ const http = require('http');
 const { Client } = require('discord.js-selfbot-v13');
 require('dotenv').config();
 
-// --- 💡 アプリケーションIDをここに直接書く！ ---
-const APP_ID = '1447891267336802400'; // ←ここに自分のAPPLICATION_IDをコピペしてくれ！
+// --- 💡 アプリケーションID ---
+const APP_ID = '1447891267336802400'; 
 
 const client = new Client({
   ws: { properties: { $browser: 'Discord iOS' } },
@@ -31,32 +31,36 @@ async function updatePresence() {
   try {
     const song = songs[currentIndex];
     const ep = UNEXT_EPISODES[Math.floor(Math.random() * UNEXT_EPISODES.length)];
+    const now = Date.now();
 
-    // Spotify
+    // --- Spotify (ボタンあり、シークバーなし) ---
     const spotifyData = {
       name: 'Spotify',
-      type: 2,
-      flags: 1,
+      type: 2, // LISTENING
+      flags: 48, // 👈 ボタン表示に必要なフラグ (PLAY + SYNC)
       details: song.details,
       state: song.state,
       sync_id: song.songId,
-      metadata: { album_id: song.albumId },
+      metadata: { 
+        album_id: song.albumId,
+        context_uri: `spotify:album:${song.albumId}` // 👈 ボタンのリンク先として必須
+      },
       assets: {
         large_image: `spotify:${song.largeImageId}`,
         small_image: 'spotify:ab6761610000f178049d8aeae802c96c8208f3b7',
         large_text: song.details
       },
       party: { id: `spotify:${client.user.id}` }
+      // timestampsは削除してシークバーを消す
     };
 
-    // U-NEXT (ハードコーディングしたIDを使用)
-    const now = Date.now();
+    // --- U-NEXT (シークバーあり) ---
     const totalAnimeTime = 24 * 60 * 1000;
     const randomElapsed = Math.floor(Math.random() * 18 * 60 * 1000);
 
     const unextData = {
       name: 'U-NEXT',
-      type: 3,
+      type: 3, // WATCHING
       application_id: APP_ID, 
       details: ep.details,
       state: ep.state,
@@ -71,6 +75,7 @@ async function updatePresence() {
       }
     };
 
+    // Spotifyを先に配列に入れる（ボタンが出やすくなります）
     await client.user.setPresence({
       activities: [spotifyData, unextData],
       status: 'online'
