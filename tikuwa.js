@@ -7,16 +7,15 @@ require('dotenv').config();
 // --- 💡 アプリケーションID ---
 const APP_ID = '1447891267336802400'; 
 
-// --- 🔧 クライアント設定 (エラー修正済) ---
+// --- 🔧 修正: iOS偽装を削除し、PC(Windows)として設定 ---
 const client = new Client({
   checkUpdate: false,
   syncStatus: true,
-  // ログイン前にPCとして定義することでクラッシュを回避
   ws: {
     properties: {
-        $os: 'Windows',
-        $browser: 'Discord Client',
-        $device: 'Discord Client'
+      $os: 'Windows',
+      $browser: 'Discord Client',
+      $device: 'Discord Client'
     }
   }
 });
@@ -41,7 +40,7 @@ async function updatePresence() {
     const ep = UNEXT_EPISODES[Math.floor(Math.random() * UNEXT_EPISODES.length)];
     const now = Date.now();
 
-    // --- Spotify ---
+    // --- Spotify (ボタンあり、シークバーなし) ---
     const spotifyData = {
       name: 'Spotify',
       type: 2, 
@@ -61,7 +60,7 @@ async function updatePresence() {
       party: { id: `spotify:${client.user.id}` }
     };
 
-    // --- U-NEXT (ボタンあり版) ---
+    // --- U-NEXT (シークバーあり) ---
     const totalAnimeTime = 24 * 60 * 1000;
     const randomElapsed = Math.floor(Math.random() * 18 * 60 * 1000);
 
@@ -79,11 +78,7 @@ async function updatePresence() {
       timestamps: {
         start: now - randomElapsed,
         end: now - randomElapsed + totalAnimeTime
-      },
-      // 💡 ボタンをここに追加
-      buttons: [
-        { label: '公式サイト', url: 'https://hikikomari.com/' }
-      ]
+      }
     };
 
     await client.user.setPresence({
@@ -91,7 +86,7 @@ async function updatePresence() {
       status: 'online'
     });
 
-    console.log(`[INFO] 更新: ${song.details} / ${ep.details}`);
+    console.log(`[INFO] 更新: ${song.details} (ID: ${APP_ID})`);
     currentIndex = (currentIndex + 1) % songs.length;
 
   } catch (err) {
