@@ -7,12 +7,11 @@ require('dotenv').config();
 // --- 💡 アプリケーションID ---
 const APP_ID = '1447891267336802400'; 
 
-// --- 🔧 エラー修正版クライアント設定 ---
+// --- 🔧 クライアント設定 (エラー修正済) ---
 const client = new Client({
   checkUpdate: false,
   syncStatus: true,
-  // 以前のエラーの原因だった箇所を修正
-  // 最初からここで「Discord Client」(PC)として設定します
+  // ログイン前にPCとして定義することでクラッシュを回避
   ws: {
     properties: {
         $os: 'Windows',
@@ -62,7 +61,7 @@ async function updatePresence() {
       party: { id: `spotify:${client.user.id}` }
     };
 
-    // --- U-NEXT (ボタン復活) ---
+    // --- U-NEXT (ボタンあり版) ---
     const totalAnimeTime = 24 * 60 * 1000;
     const randomElapsed = Math.floor(Math.random() * 18 * 60 * 1000);
 
@@ -81,7 +80,7 @@ async function updatePresence() {
         start: now - randomElapsed,
         end: now - randomElapsed + totalAnimeTime
       },
-      // 💡 ここでボタンを追加しました
+      // 💡 ボタンをここに追加
       buttons: [
         { label: '公式サイト', url: 'https://hikikomari.com/' }
       ]
@@ -92,7 +91,7 @@ async function updatePresence() {
       status: 'online'
     });
 
-    console.log(`[INFO] 更新: ${song.details} (ID: ${APP_ID})`);
+    console.log(`[INFO] 更新: ${song.details} / ${ep.details}`);
     currentIndex = (currentIndex + 1) % songs.length;
 
   } catch (err) {
@@ -106,7 +105,6 @@ const PORT = process.env.PORT || 8080;
 http.createServer((req, res) => res.end('Meumeu Active')).listen(PORT);
 
 client.once('ready', () => {
-  // 以前エラーが出ていた行は削除済みです
   console.log(`[READY] Logged in as ${client.user.tag}`);
   updatePresence();
 });
