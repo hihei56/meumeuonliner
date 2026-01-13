@@ -7,8 +7,8 @@ require('dotenv').config();
 // --- 💡 アプリケーションID ---
 const APP_ID = '1447891267336802400'; 
 
+// --- 🔧 クライアント設定 (iOS偽装プロパティを削除) ---
 const client = new Client({
-  ws: { properties: { $browser: 'Discord iOS' } },
   syncStatus: true,
   checkUpdate: false
 });
@@ -33,17 +33,17 @@ async function updatePresence() {
     const ep = UNEXT_EPISODES[Math.floor(Math.random() * UNEXT_EPISODES.length)];
     const now = Date.now();
 
-    // --- Spotify (ボタンあり、シークバーなし) ---
+    // --- Spotify (シークバーなし) ---
     const spotifyData = {
       name: 'Spotify',
-      type: 2, // LISTENING
-      flags: 48, // 👈 ボタン表示に必要なフラグ (PLAY + SYNC)
+      type: 2, 
+      flags: 48, 
       details: song.details,
       state: song.state,
       sync_id: song.songId,
       metadata: { 
         album_id: song.albumId,
-        context_uri: `spotify:album:${song.albumId}` // 👈 ボタンのリンク先として必須
+        context_uri: `spotify:album:${song.albumId}` 
       },
       assets: {
         large_image: `spotify:${song.largeImageId}`,
@@ -51,16 +51,15 @@ async function updatePresence() {
         large_text: song.details
       },
       party: { id: `spotify:${client.user.id}` }
-      // timestampsは削除してシークバーを消す
     };
 
-    // --- U-NEXT (シークバーあり) ---
+    // --- U-NEXT (ボタン追加) ---
     const totalAnimeTime = 24 * 60 * 1000;
     const randomElapsed = Math.floor(Math.random() * 18 * 60 * 1000);
 
     const unextData = {
       name: 'U-NEXT',
-      type: 3, // WATCHING
+      type: 3, 
       application_id: APP_ID, 
       details: ep.details,
       state: ep.state,
@@ -72,16 +71,19 @@ async function updatePresence() {
       timestamps: {
         start: now - randomElapsed,
         end: now - randomElapsed + totalAnimeTime
-      }
+      },
+      // 💡 ボタンを追加
+      buttons: [
+        { label: '公式サイト', url: 'https://hikikomari.com/' }
+      ]
     };
 
-    // Spotifyを先に配列に入れる（ボタンが出やすくなります）
     await client.user.setPresence({
       activities: [spotifyData, unextData],
       status: 'online'
     });
 
-    console.log(`[INFO] 更新: ${song.details} (ID: ${APP_ID})`);
+    console.log(`[INFO] 更新: ${song.details} / ${ep.details}`);
     currentIndex = (currentIndex + 1) % songs.length;
 
   } catch (err) {
@@ -95,6 +97,9 @@ const PORT = process.env.PORT || 8080;
 http.createServer((req, res) => res.end('Meumeu Active')).listen(PORT);
 
 client.once('ready', () => {
+  // --- 💡 ログイン後にPCクライアントとして名乗る ---
+  client.ws.properties.$browser = 'Discord Client';
+  
   console.log(`[READY] Logged in as ${client.user.tag}`);
   updatePresence();
 });
