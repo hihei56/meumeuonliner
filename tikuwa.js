@@ -29,7 +29,12 @@ const UNEXT_EPISODES = [
 const songs = [
   { songId: '3btKs4ln57kQ46ALWdsvYi', albumId: '5FWUjYrzJ819QM9JwYm2oq', largeImageId: 'ab67706c0000da84abeeaae7c11c3455bc45d603', details: 'めうめうぺったんたん！！', state: '芽兎めう (日向美ビタースイーツ♪)' },
   { songId: '2jt59rxHFcoZpW73XjOjLJ', albumId: '3XXE2RELSxhwcvrGgjDHtd', largeImageId: 'ab67706c0000da84c0052dc7fb523a68affdb8f7', details: '地方創生☆チクワクティクス', state: '芽兎めう (日向美ビタースイーツ♪)' },
-  { songId: '2Jz14TeOoO7WpXAllHmLoT', albumId: '4gOKhDHtuTyma4MlJOgg6p', largeImageId: 'ab67616d0000b2733a2e5ec15ee327a3c82d057e', details: "Cat's Meow", state: '黒鉄たま (CV: 秋奈)' }
+  { songId: '2Jz14TeOoO7WpXAllHmLoT', albumId: '4gOKhDHtuTyma4MlJOgg6p', largeImageId: 'ab67616d0000b2733a2e5ec15ee327a3c82d057e', details: "Cat's Meow", state: '黒鉄たま (CV: 秋奈)' },
+  { songId: '5v5CodfWGLTUEki4ffiH6R', albumId: '1JKkF3lHBSqlaCGrVWNu0F', largeImageId: 'ab67616d0000b273021c9f2bf2063de7411015cb', details: 'カウントダウンラブ - Off Vocal', state: "I'm a Cutie Finder" },
+  { songId: '4hyZBYXl4RVRh9yZ1UqVBl', albumId: '1JKkF3lHBSqlaCGrVWNu0F', largeImageId: 'ab67616d0000b273021c9f2bf2063de7411015cb', details: 'KAWAII♡めたもる交響曲 - Game Size', state: "I'm a Cutie Finder" },
+  { songId: '76GAKLQoyG4129aRnbgs6e', albumId: '5VturOz14q5HPscCAAXquX', largeImageId: 'ab67616d0000b273b32a6d4bfc35db6096a34183', details: 'ルピラ', state: 'アルストロメリア' },
+  { songId: '6pw3NHEm4q0XYmj98ikWvX', albumId: '5D8XL4PWEuwBy7RjzgQdl6', largeImageId: 'ab67616d0000b273b48ecf9292bd42c0b88d246e', details: 'キラピコ.exe', state: 'HO-KA-GO CLIMAX GIRLS' },
+  { songId: '03ihlQGMBrQrOPkBiIXqy1', albumId: '25jyF9Awrh8pOMZvQGgH5O', largeImageId: 'ab67616d0000b273bba5daa38846449940babdbe', details: '迅雷鉄火', state: 'HO-KA-GO CLIMAX GIRLS; Straylight' }
 ];
 
 let currentIndex = 0;
